@@ -1,0 +1,13 @@
+{
+    "name": "paratoxic-modpack",
+    "version": "1.0.0",
+    "title": "Paratoxic Modpack",
+    "author": "SoulCRYSIS",
+    "factorio_version": "2.0",
+    "description": "Private Modpack for Paratoxic",
+    "space_travel_required": true,
+    "dependencies": [
+      "base >= 2.0",
+      "space-age"
+    ]
+  }

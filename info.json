@@ -8,6 +8,7 @@
     "space_travel_required": true,
     "dependencies": [
       "base >= 2.0",
-      "space-age"
+      "space-age",
+      "informatron"
     ]
   }

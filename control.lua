@@ -1,3 +1,3 @@
 require("logics.starting")
-require("logics.probes")
+require("logics.probe-system")
 require("logics.informatron")

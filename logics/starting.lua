@@ -1,5 +1,3 @@
-local gameplay = require("logics.gameplay")
-
 local function modify_game_start_scripts()
   local freeplay = remote.interfaces.freeplay
   if freeplay then
@@ -15,6 +13,32 @@ local function skip_rubia_cutscene()
   if tech and not tech.researched then
     tech.researched = true
   end
+end
+
+local function create_self()
+  local force = game.forces["player"]
+  local platform = force.create_space_platform({
+    name = "The Motherframe",
+    planet = "rubia",
+    starter_pack =
+    "space-platform-starter-pack"
+  })
+
+  platform.apply_starter_pack()
+  storage.platform = platform
+end
+
+local function give_starting_items()
+  if storage.platform.hub then
+    storage.platform.hub.insert({ name = "asteroid-collector", count = 2 })
+    storage.platform.hub.insert({ name = "inserter", count = 10 })
+    storage.platform.hub.insert({ name = "heat-pipe", count = 50 })
+    storage.platform.hub.insert({ name = "space-platform-foundation", count = 490 })
+  end
+end
+
+local function create_permission_group()
+  game.permissions.create_group("players")
 end
 
 local function refresh_data_storage()
@@ -50,19 +74,15 @@ script.on_init(function()
   modify_game_start_scripts()
   refresh_data_storage()
   game.forces["player"].technologies["planet-discovery-rubia"].researched = true
-  gameplay.create_self()
-  gameplay.give_starting_items()
-  gameplay.create_permission_group()
+  create_self()
+  give_starting_items()
+  create_permission_group()
   skip_rubia_cutscene()
 end)
 
 script.on_configuration_changed(function()
   refresh_data_storage()
   skip_rubia_cutscene()
-end)
-
-script.on_event(defines.events.on_player_respawned, function(e)
-  gameplay.on_respawn(e)
 end)
 
 script.on_event(defines.events.on_player_created, function(e)

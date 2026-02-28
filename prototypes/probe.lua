@@ -14,29 +14,23 @@ data:extend({
 })
 
 -- Probe spidertron (copy from base spidertron, use our locked grid)
-local spidertron = data.raw["spider-vehicle"]["spidertron"]
-if spidertron then
-  local probe = util.table.deepcopy(spidertron)
-  probe.name = "paratoxic-probe"
-  probe.equipment_grid = "paratoxic-probe-equipment-grid"
-  probe.minable = nil -- Prevent mining to avoid duping
-  probe.max_health = spidertron.max_health
-  probe.localised_name = { "entity-name.paratoxic-probe" }
-  probe.localised_description = { "entity-description.paratoxic-probe" }
-  data:extend({ probe })
-end
+local probe = table.deepcopy(data.raw["spider-vehicle"]["ss-space-spidertron"])
+probe.name = "paratoxic-probe"
+probe.equipment_grid = "paratoxic-probe-equipment-grid"
+probe.minable = nil -- Prevent mining to avoid duping
+probe.localised_name = { "entity-name.paratoxic-probe" }
+probe.localised_description = { "entity-description.paratoxic-probe" }
+probe.allow_remote_driving = true
+data:extend({ probe })
 
--- Surface swap shortcut (teleport between mainframe and probes)
-data:extend({
-  {
-    type = "shortcut",
-    name = "paratoxic-surface-swap",
-    action = "lua",
-    localised_name = { "shortcut-name.paratoxic-surface-swap" },
-    localised_description = { "shortcut-description.paratoxic-surface-swap" },
-    icon = "__base__/graphics/icons/spidertron.png",
-    icon_size = 64,
-    small_icon = "__base__/graphics/icons/spidertron.png",
-    small_icon_size = 24,
-  }
-})
+local technology = data.raw["technology"]["spidertron"]
+local new_effects = {}
+for _, effect in ipairs(technology.effects) do
+  if effect.recipe ~= "ss-space-spidertron" then
+    table.insert(new_effects, effect)
+  end
+end
+technology.effects = new_effects
+
+data.raw["spider-vehicle"]["ss-space-spidertron"].hidden = true
+data.raw["recipe"]["ss-space-spidertron"].hidden = true

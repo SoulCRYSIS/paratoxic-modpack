@@ -1,13 +1,20 @@
--- Probe deployment system: player character stays on mainframe, probes controlled remotely
-local gameplay = require("logics.gameplay")
-
 local PROBE_NAME = "paratoxic-probe"
 local SURFACE_SWAP_SHORTCUT = "paratoxic-surface-swap"
 
-local PROBE_EQUIPMENT = {
+local PROBE_INITIAL_EQUIPMENTS = {
   { name = "personal-roboport-equipment", count = 1 },
-  { name = "fusion-reactor-equipment", count = 1 }
+  { name = "fusion-reactor-equipment",    count = 1 }
 }
+
+local PROBE_INITIAL_ITEMS = {
+  { name = "construction-robot", count = 10 },
+  { name = "repair-pack", count = 20 },
+}
+
+local function goto_platform(player)
+  player.teleport({ x = 0, y = 0 }, storage.platform.surface.name)
+  player.enter_space_platform(storage.platform)
+end
 
 local function get_power_equipment()
   if prototypes.item["fusion-reactor-equipment"] then
@@ -32,13 +39,18 @@ local function equip_probe(probe)
   local grid = probe.grid
   if not grid then return end
   local power = get_power_equipment()
-  for _, eq in ipairs(PROBE_EQUIPMENT) do
+  for _, eq in ipairs(PROBE_INITIAL_EQUIPMENTS) do
     local name = eq.name
     if name == "fusion-reactor-equipment" then name = power end
     if prototypes.item[name] then
-      for _ = 1, (eq.count or 1) do
-        grid.put({ name = name, count = 1 })
-      end
+      grid.put({ name = name, count = eq.count })
+    end
+  end
+  local inventory = probe.get_inventory(defines.inventory.spider_trunk)
+  for _, item in ipairs(PROBE_INITIAL_ITEMS) do
+    local name = item.name
+    if prototypes.item[name] then
+      inventory.insert({ name = name, count = item.count })
     end
   end
 end
@@ -134,7 +146,7 @@ local function return_to_mainframe(player)
     end
     storage.players[player.index].mainframe_character = nil
   end
-  gameplay.goto_platform(player)
+  goto_platform(player)
 end
 
 -- Schedule remote probe entry for next tick (lets teleport complete first)
@@ -188,7 +200,7 @@ script.on_event(defines.events.on_cargo_pod_finished_descending, function(event)
     if existing_probe then
       if cargo_pod.valid then cargo_pod.destroy() end
       set_land_permission(player, false)
-      gameplay.goto_platform(player)
+      goto_platform(player)
       schedule_remote_entry(player.index, planet_name)
       return
     end
@@ -213,7 +225,7 @@ script.on_event(defines.events.on_cargo_pod_finished_descending, function(event)
   probes[planet_name] = probe.unit_number
   set_land_permission(player, false)
 
-  gameplay.goto_platform(player)
+  goto_platform(player)
   schedule_remote_entry(player.index, planet_name)
 end)
 
